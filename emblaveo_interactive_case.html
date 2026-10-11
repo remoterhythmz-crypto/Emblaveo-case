@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMBLAVEO Clinical Case Experience — Post-Neurosurgical Meningitis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #080a0f;
+      --bg-panel: rgba(14, 18, 28, 0.88);
+      --bg-panel-border: rgba(212, 175, 55, 0.25);
+      --pfizer-blue: #0000a0;
+      --brand-cyan: #00d2ff;
+      --gold-accent: #d4af37;
+      --gold-glow: rgba(212, 175, 55, 0.4);
+      --amber-warm: #f59e0b;
+      --success-green: #10b981;
+      --error-red: #ef4444;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --card-radius: 14px;
+      --shadow-cinematic: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cinematic Layout */
+    .app-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Video & Canvas Stage */
+    .video-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: radial-gradient(circle at center, #1e2430 0%, #080a0f 100%);
+      overflow: hidden;
+    }
+
+    #bgVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: filter 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s ease;
+    }
+
+    #bgCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      z-index: 2;
+    }
+
+    .video-vignette {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 40% 50%, rgba(0,0,0,0.1) 0%, rgba(8,10,15,0.75) 80%, rgba(8,10,15,0.95) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Header Nav */
+    .header-bar {
+      position: relative;
+      z-index: 20;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(8,10,15,0.92) 0%, rgba(8,10,15,0.4) 70%, transparent 100%);
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--gold-accent);
+    }
+
+    .brand-logo-badge span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold-accent);
+      box-shadow: 0 0 8px var(--gold-accent);
+      display: inline-block;
+    }
+
+    .case-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .stage-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(14, 18, 28, 0.7);
+      padding: 0.35rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .step-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .step-pill.active {
+      background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(212,175,55,0.1));
+      color: #ffffff;
+      border: 1px solid var(--gold-accent);
+      box-shadow: 0 0 14px rgba(212,175,55,0.3);
+    }
+
+    .step-pill.completed {
+      color: var(--success-green);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-icon {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: var(--gold-accent);
+      color: var(--gold-accent);
+      transform: scale(1.05);
+    }
+
+    /* Main Interactive Arena */
+    .main-stage {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 540px;
+      padding: 1.5rem 3rem 2rem 3rem;
+      gap: 2rem;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .left-scenic-overlay {
+      pointer-events: auto;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: opacity 0.5s ease;
+    }
+
+    .patient-hud-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(8,10,15,0.85);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      width: fit-content;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .patient-hud-chip strong {
+      color: var(--gold-accent);
+    }
+
+    .hud-ticker {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #38bdf8;
+    }
+
+    .hud-ticker .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #38bdf8;
+      animation: heartPulse 0.88s infinite ease-out;
+    }
+
+    @keyframes heartPulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.6); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .doctor-monologue-box {
+      background: rgba(14, 18, 28, 0.75);
+      border-left: 3px solid var(--gold-accent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 10px 10px 0;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .doctor-monologue-box p {
+      font-style: italic;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .doctor-monologue-box .speaker {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold-accent);
+      margin-bottom: 0.35rem;
+      font-style: normal;
+    }
+
+    /* Decision Gate Card (Targeted to negative space on the right) */
+    .decision-container {
+      pointer-events: auto;
+      justify-self: end;
+      width: 100%;
+      max-width: 540px;
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+      pointer-events: none;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .decision-container.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .decision-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow-cinematic), 0 0 30px rgba(0,0,0,0.7);
+      backdrop-filter: blur(24px);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .decision-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+    }
+
+    .gate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 0.85rem;
+    }
+
+    .gate-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-accent);
+      background: rgba(212,175,55,0.12);
+      border: 1px solid rgba(212,175,55,0.3);
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .gate-timer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .question-stem {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #ffffff;
+    }
+
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 1rem 1.15rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      transition: all 0.25s ease;
+      color: #e2e8f0;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .option-btn:hover:not(.disabled) {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(212, 175, 55, 0.45);
+      transform: translateX(4px);
+    }
+
+    .option-letter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold-accent);
+      background: rgba(212, 175, 55, 0.12);
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.15) !important;
+      border-color: var(--success-green) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+    }
+
+    .option-btn.correct .option-letter {
+      background: var(--success-green);
+      color: #ffffff;
+    }
+
+    .option-btn.incorrect {
+      background: rgba(239, 68, 68, 0.12) !important;
+      border-color: var(--error-red) !important;
+      opacity: 0.8;
+    }
+
+    .option-btn.incorrect .option-letter {
+      background: var(--error-red);
+      color: #ffffff;
+    }
+
+    /* Rationale Reveal Panel */
+    .rationale-panel {
+      display: none;
+      background: rgba(10, 14, 22, 0.8);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 10px;
+      padding: 1.15rem;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .rationale-panel.show {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .rationale-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--success-green);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .rationale-text {
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: #cbd5e1;
+    }
+
+    .rationale-ref {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      font-style: italic;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+      padding-top: 0.5rem;
+    }
+
+    .action-btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-continue {
+      background: linear-gradient(135deg, #d4af37 0%, #b89327 100%);
+      color: #080a0f;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(212,175,55,0.4);
+    }
+
+    .btn-continue:hover {
+      background: linear-gradient(135deg, #f1c40f 0%, #d4af37 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212,175,55,0.6);
+    }
+
+    /* Footer / Video Transport Controls */
+    .footer-bar {
+      position: relative;
+      z-index: 20;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      background: linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.5) 70%, transparent 100%);
+      backdrop-filter: blur(8px);
+    }
+
+    .timeline-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 9999px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .timeline-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold-accent), #f59e0b);
+      border-radius: 9999px;
+      transition: width 0.1s linear;
+    }
+
+    .time-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      min-width: 80px;
+    }
+
+    .transport-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-play-pause {
+      background: rgba(212, 175, 55, 0.2);
+      border: 1px solid var(--gold-accent);
+      color: #ffffff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-play-pause:hover {
+      background: var(--gold-accent);
+      color: #080a0f;
+    }
+
+    /* Modal for Source Management */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #0e121c;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 580px;
+      padding: 2rem;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .modal-card h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold-accent);
+      font-size: 1.25rem;
+    }
+
+    .modal-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .file-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .file-input-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+    }
+
+    .file-input-group input[type="file"],
+    .file-input-group input[type="text"] {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .modal-close-btn {
+      align-self: flex-end;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ffffff;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .main-stage {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+      }
+      .left-scenic-overlay {
+        display: none;
+      }
+      .decision-container {
+        justify-self: center;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Viewport Stage -->
+    <div class="video-viewport">
+      <video id="bgVideo" playsinline preload="auto">
+        <source src="assets/video1.mp4" type="video/mp4">
+      </video>
+      <canvas id="bgCanvas"></canvas>
+      <div class="video-vignette"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="header-bar">
+      <div class="brand-title">
+        <div class="brand-logo-badge">
+          <span class="dot"></span> EMBLAVEO®
+        </div>
+        <div class="case-title">Clinical Decision Pathway</div>
+      </div>
+
+      <nav class="stage-stepper" id="stageStepper">
+        <div class="step-pill active" onclick="switchStage(1)">
+          <span>01</span> The First Watch
+        </div>
+        <div class="step-pill" onclick="switchStage(2)">
+          <span>02</span> Biochemical Fortress
+        </div>
+        <div class="step-pill" onclick="switchStage(3)">
+          <span>03</span> Crossing Barrier
+        </div>
+        <div class="step-pill" onclick="switchStage(4)">
+          <span>04</span> Clinical Resolution
+        </div>
+      </nav>
+
+      <div class="top-actions">
+        <button class="btn-icon" id="btnSound" title="Toggle Sound (ECG & Ambiance)" onclick="toggleAudio()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+        <button class="btn-icon" title="Video Source Manager" onclick="openSourceModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Stage Grid -->
+    <main class="main-stage">
+      <!-- Left Scene HUD & Internal Monologue -->
+      <section class="left-scenic-overlay" id="leftHud">
+        <div class="patient-hud-chip">
+          <span>Arthur Vance (45)</span>
+          <span style="opacity: 0.3;">|</span>
+          <span>Post-Neurosurgical ICU</span>
+          <span style="opacity: 0.3;">|</span>
+          <div class="hud-ticker">
+            <div class="pulse"></div> 68 BPM
+          </div>
+        </div>
+
+        <div class="doctor-monologue-box">
+          <div class="speaker" id="monologueSpeaker">Doctor POV — Internal Monologue</div>
+          <p id="monologueText">"The surgery went as planned, but recovery is where the real battle begins. I review the chart: prolonged hospital stay and intensive prior antibiotic exposure..."</p>
+        </div>
+      </section>
+
+      <!-- Right Decision Gate Overlay -->
+      <section class="decision-container" id="decisionContainer">
+        <div class="decision-card">
+          <div class="gate-header">
+            <span class="gate-badge" id="gateBadge">Decision Gate 01</span>
+            <span class="gate-timer" id="gateTimer">Stage 1 of 4</span>
+          </div>
+
+          <h2 class="question-stem" id="questionStem">
+            With conventional β-lactams rapidly failing against this opportunistic colonizer, what makes this post-neurosurgical infection so notoriously difficult to manage right from the start?
+          </h2>
+
+          <div class="options-group" id="optionsGroup">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div class="rationale-panel" id="rationalePanel">
+            <div class="rationale-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Clinical Evidence & Mechanism
+            </div>
+            <p class="rationale-text" id="rationaleText">
+              S. maltophilia is an opportunistic pathogen that colonizes vulnerable hosts who have experienced significant prior antibiotic exposure. This history selects for aggressive, multidrug-resistant strains, rendering standard empiric regimens ineffective.
+            </p>
+            <div class="rationale-ref" id="rationaleRef">
+              Reference: IDSA 2026 Guidance on AMR Gram-Negative Infections; Hsu & Tamma (2025) / Wong-So et al. (2025) AAC.
+            </div>
+            <div class="action-btn-row">
+              <button class="btn-continue" id="btnNextStage" onclick="advanceToNextStage()">
+                <span>Continue Case</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer Timeline & Transport -->
+    <footer class="footer-bar">
+      <div class="transport-controls">
+        <button class="btn-play-pause" id="btnPlayPause" onclick="togglePlay()">
+          <svg id="playIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <svg id="pauseIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+      </div>
+
+      <div class="timeline-track" id="timelineTrack" onclick="seekVideo(event)">
+        <div class="timeline-progress" id="timelineProgress"></div>
+      </div>
+
+      <div class="time-counter" id="timeCounter">00:00 / 00:10</div>
+    </footer>
+  </div>
+
+  <!-- Video Source Manager Modal -->
+  <div class="modal-overlay" id="sourceModal">
+    <div class="modal-card">
+      <h3>Video Sources & Configuration</h3>
+      <p>By default, the engine loads <code>assets/video1.mp4</code> through <code>assets/video4.mp4</code>. If replacing local clips, choose your files below.</p>
+      
+      <div class="file-input-group">
+        <label>Select Local Video for Current Scene:</label>
+        <input type="file" id="localVideoPicker" accept="video/mp4,video/webm" onchange="handleLocalVideoUpload(event)">
+      </div>
+
+      <div class="file-input-group">
+        <label>Current Video Path / URL:</label>
+        <input type="text" id="videoUrlInput" value="assets/video1.mp4">
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem;">
+        <button class="modal-close-btn" style="background: var(--gold-accent); color: #080a0f; font-weight:700;" onclick="applyVideoUrl()">Apply URL</button>
+        <button class="modal-close-btn" onclick="closeSourceModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Case Data Blueprint (All 4 Stages)
+    const CASE_STAGES = [
+      {
+        id: 1,
+        title: "The First Watch",
+        videoSrc: "assets/video1.mp4",
+        stills: [
+          "scene_stills/01-01-icu-entry-v2.png",
+          "scene_stills/01-02-bedside-round.png",
+          "scene_stills/01-03-chart-question-v2.png"
+        ],
+        pauseTime: 9.8,
+        speaker: "Doctor POV — The First Watch",
+        monologue: "Sarah, keep your eyes open. Watch for any neurological shifts. He's vulnerable.",
+        badge: "Decision Gate 01 • Clinical Presentation",
+        question: "With conventional β-lactams rapidly failing against this opportunistic colonizer, what makes this post-neurosurgical infection so notoriously difficult to manage right from the start?",
+        options: [
+          {
+            letter: "A",
+            text: "The pathogen forms impenetrable physical biofilms on the skull bone within minutes.",
+            correct: false,
+            feedback: "Incorrect. Biofilm formation is a chronic factor, not an instantaneous physical barrier preventing initial management."
+          },
+          {
+            letter: "B",
+            text: "The patient has underlying host vulnerability driven by significant prior antibiotic exposure, allowing multi-resistant opportunistic strains to flourish.",
+            correct: true,
+            feedback: "Correct. Prior intensive antibiotic exposure selects for opportunistic multi-resistant pathogens like S. maltophilia."
+          },
+          {
+            letter: "C",
+            text: "The bacteria completely lacks any cellular wall structure, making all antibiotics useless.",
+            correct: false,
+            feedback: "Incorrect. S. maltophilia is a Gram-negative bacillus with a peptidoglycan cell wall, not an atypical wall-less organism."
+          }
+        ],
+        rationale: "S. maltophilia is an opportunistic pathogen that preferentially colonizes vulnerable hosts who have experienced significant prior antibiotic exposure. This history selects for aggressive, difficult-to-treat strains, making standard empirical coverage dead on arrival.",
+        reference: "Ref: IDSA 2026 Guidance on AMR Gram-Negative Infections; Hsu & Tamma (2025) Antimicrob Agents Chemother."
+      },
+      {
+        id: 2,
+        title: "The Biochemical Fortress",
+        videoSrc: "assets/video2.mp4",
+        stills: [
+          "scene_stills/02-01-office-routine.png",
+          "scene_stills/02-02-sarah-alert.png",
+          "scene_stills/02-03-lab-question.png"
+        ],
+        pauseTime: 9.8,
+        speaker: "Doctor POV — Biochemical Fortress",
+        monologue: "Post-op day three. Still hoping for a quiet recovery... 'Doctor, his fever spiked, and the cultures just came back.' A dual enzyme—carbapenems won't touch this.",
+        badge: "Decision Gate 02 • Resistance Mechanisms",
+        question: "How do the bacterium's internal defense enzymes neutralize conventional therapies, and how can we rationally bypass them?",
+        options: [
+          {
+            letter: "A",
+            text: "The bacteria uses L1 metallo-β-lactamases to hydrolyze most drugs, while co-produced L2 serine β-lactamases destroy aztreonam; thus, adding avibactam inhibits L2 to restore aztreonam's bactericidal power.",
+            correct: true,
+            feedback: "Exact mechanism. Aztreonam bypasses L1 MBL; avibactam neutralizes L2 serine β-lactamase, restoring aztreonam efficacy."
+          },
+          {
+            letter: "B",
+            text: "The bacteria secretes heavy metals that bind directly to intravenous lines, destroying the drug before reaching circulation.",
+            correct: false,
+            feedback: "Incorrect. Resistance is enzymatic within the bacterial periplasm, not physical line degradation."
+          },
+          {
+            letter: "C",
+            text: "The pathogen utilizes efflux pumps that selectively push out all non-antibiotic molecules while ignoring active drugs.",
+            correct: false,
+            feedback: "Incorrect. Efflux pumps extrude antibiotics, not non-antibiotic fluids."
+          }
+        ],
+        rationale: "Conventional β-lactams fail because of inducible L1 metallo-β-lactamases. While aztreonam is stable against L1, it remains vulnerable to co-produced L2 serine β-lactamases. Combining it with avibactam successfully inhibits those L2 enzymes, protecting aztreonam so it can bind to PBP3—functionally replicating the fixed-combination Emblaveo.",
+        reference: "Ref: Poeylaut-Palena et al. (2007) Bioorg Med Chem Lett; Wong-So et al. (2025) AAC."
+      },
+      {
+        id: 3,
+        title: "Crossing the Barrier",
+        videoSrc: "assets/video3.mp4",
+        stills: [
+          "scene_stills/03-01-clara-waiting.png",
+          "scene_stills/03-02-doctor-reassures-clara.png",
+          "scene_stills/03-03-team-corridor-question-v2.png"
+        ],
+        pauseTime: 9.8,
+        speaker: "Doctor POV — Pharmacokinetic Dilemma",
+        monologue: "The family is waiting. Every hour counts. 'We have a targeted plan, Clara. We're monitoring him closely. Stay strong.' Can this cross the blood-brain barrier at bactericidal levels?",
+        badge: "Decision Gate 03 • Pharmacokinetics & CNS Penetration",
+        question: "How do we prove that the medication is actually reaching therapeutic concentrations inside the central nervous system?",
+        options: [
+          {
+            letter: "A",
+            text: "By measuring blood pressure hourly to gauge how fast the drug circulates.",
+            correct: false,
+            feedback: "Incorrect. Hemodynamic monitoring does not quantify drug concentrations across the blood-brain barrier."
+          },
+          {
+            letter: "B",
+            text: "By performing meticulous pharmacokinetic assessments, measuring simultaneous peak and trough concentrations of both aztreonam and avibactam in CSF and plasma throughout treatment.",
+            correct: true,
+            feedback: "Precisely. Simultaneous CSF-to-plasma ratios establish therapeutic CNS exposure."
+          },
+          {
+            letter: "C",
+            text: "By assuming CSF penetration mirrors normal muscle tissue distribution without direct sampling.",
+            correct: false,
+            feedback: "Incorrect. Blood-brain barrier physiology differs significantly from peripheral muscle perfusion."
+          }
+        ],
+        rationale: "Simultaneous peak and trough CSF-to-plasma ratios proved that aztreonam (early peak ratios up to 26%) and avibactam achieved central nervous system exposures comparable to other established β-lactams used for gram-negative meningitis.",
+        reference: "Ref: Nau et al. (2010) Clin Microbiol Rev; Wong-So et al. (2025); Hsu & Tamma (2025) AAC."
+      },
+      {
+        id: 4,
+        title: "Clinical Resolution",
+        videoSrc: "assets/video4.mp4",
+        stills: [
+          "scene_stills/04-01-daylight-return-v2.png",
+          "scene_stills/04-02-recovery-bedside.png",
+          "scene_stills/04-03-watch-question-v2.png"
+        ],
+        pauseTime: 19.8,
+        speaker: "Doctor POV — Day 14 Recovery",
+        monologue: "Fourteen days later. Precision science won. 'I feel like myself again... Thank you for saving him.' The infection is cleared. Complete cure achieved.",
+        badge: "Decision Gate 04 • Clinical Outcome",
+        question: "What does this successful clinical outcome ultimately prove regarding our therapeutic strategy against deep-seated, multi-resistant pathogens?",
+        options: [
+          {
+            letter: "A",
+            text: "That older narrow-spectrum penicillins should always be tried first regardless of resistance profiles.",
+            correct: false,
+            feedback: "Incorrect. Using inactive older agents against documented MBL/L2 producers delays effective therapy."
+          },
+          {
+            letter: "B",
+            text: "That aztreonam-avibactam (Emblaveo) serves as a rational, highly effective, and viable strategy to conquer complex resistance mechanisms without needing auxiliary agents.",
+            correct: true,
+            feedback: "Complete resolution. Mechanism-guided combination cleared the infection without secondary antibiotics."
+          },
+          {
+            letter: "C",
+            text: "That surgical intervention alone cures meningitis without any antimicrobial assistance.",
+            correct: false,
+            feedback: "Incorrect. Source control is vital, but bacterial eradication in CNS infection requires bactericidal antibiotic levels."
+          }
+        ],
+        rationale: "The patient achieved complete clinical and microbiological cure using this targeted combination regimen alone. While alternatives like cefiderocol remain debated options, this case cements aztreonam-avibactam as a premier, mechanism-guided solution for untreatable gram-negative challenges.",
+        reference: "Ref: Carmeli et al. (2025) Lancet Infect Dis (REVISIT); Wong-So et al. (2025); Hsu & Tamma (2025) AAC."
+      }
+    ];
+
+    let currentStageIndex = 0;
+    let audioContext = null;
+    let isAudioActive = false;
+    let ecgInterval = null;
+    let answeredCorrectly = false;
+
+    // DOM Elements
+    const bgVideo = document.getElementById('bgVideo');
+    const bgCanvas = document.getElementById('bgCanvas');
+    const decisionContainer = document.getElementById('decisionContainer');
+    const questionStem = document.getElementById('questionStem');
+    const optionsGroup = document.getElementById('optionsGroup');
+    const rationalePanel = document.getElementById('rationalePanel');
+    const rationaleText = document.getElementById('rationaleText');
+    const rationaleRef = document.getElementById('rationaleRef');
+    const gateBadge = document.getElementById('gateBadge');
+    const monologueText = document.getElementById('monologueText');
+    const monologueSpeaker = document.getElementById('monologueSpeaker');
+    const timelineProgress = document.getElementById('timelineProgress');
+    const timeCounter = document.getElementById('timeCounter');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const stageStepper = document.getElementById('stageStepper');
+
+    // Initialize Stage
+    function loadStage(stageIdx) {
+      currentStageIndex = stageIdx;
+      const stage = CASE_STAGES[stageIdx];
+      answeredCorrectly = false;
+
+      // Update Header Stepper
+      const pills = stageStepper.querySelectorAll('.step-pill');
+      pills.forEach((p, i) => {
+        p.classList.remove('active');
+        if (i === stageIdx) p.classList.add('active');
+        if (i < stageIdx) p.classList.add('completed');
+      });
+
+      // Update Left HUD Monologue
+      monologueSpeaker.textContent = stage.speaker;
+      monologueText.textContent = `"${stage.monologue}"`;
+
+      // Update Decision Gate Card
+      gateBadge.textContent = stage.badge;
+      questionStem.textContent = stage.question;
+      rationaleText.textContent = stage.rationale;
+      rationaleRef.textContent = stage.reference;
+
+      // Reset Rationale & Decision Card visibility
+      rationalePanel.classList.remove('show');
+      decisionContainer.classList.remove('visible');
+      bgVideo.style.filter = "none";
+
+      // Render Options
+      optionsGroup.innerHTML = '';
+      stage.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `
+          <div class="option-letter">${opt.letter}</div>
+          <div>${opt.text}</div>
+        `;
+        btn.onclick = () => handleOptionClick(btn, opt);
+        optionsGroup.appendChild(btn);
+      });
+
+      // Load Video with fallback to Stills
+      bgVideo.src = stage.videoSrc;
+      bgVideo.load();
+      bgVideo.play().then(() => {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+        bgCanvas.style.display = 'none';
+        bgVideo.style.display = 'block';
+      }).catch(err => {
+        console.warn("Video auto-play restricted or file missing.", err);
+        bgCanvas.style.display = 'none';
+        bgVideo.style.display = 'block';
+      });
+    }
+
+    // Video Playback & Time Tracking
+    bgVideo.addEventListener('timeupdate', () => {
+      const stage = CASE_STAGES[currentStageIndex];
+      const cur = bgVideo.currentTime;
+      const dur = bgVideo.duration || 10;
+
+      // Update Timeline
+      const pct = (cur / dur) * 100;
+      timelineProgress.style.width = pct + '%';
+      timeCounter.textContent = `${formatTime(cur)} / ${formatTime(dur)}`;
+
+      // Pause at Decision Gate point (~9.8s or end)
+      if (cur >= stage.pauseTime && !bgVideo.paused && !answeredCorrectly) {
+        bgVideo.pause();
+        triggerDecisionGate();
+      }
+    });
+
+    bgVideo.addEventListener('ended', () => {
+      triggerDecisionGate();
+    });
+
+    function triggerDecisionGate() {
+      decisionContainer.classList.add('visible');
+      bgVideo.style.filter = "brightness(0.55) blur(2px)";
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+      playChime(440, 0.15); // soft focus cue
+    }
+
+    // Handle Option Selection
+    function handleOptionClick(button, option) {
+      if (answeredCorrectly) return;
+
+      if (option.correct) {
+        button.classList.add('correct');
+        answeredCorrectly = true;
+        playSuccessChime();
+
+        // Disable other options
+        const allButtons = optionsGroup.querySelectorAll('.option-btn');
+        allButtons.forEach(b => {
+          if (b !== button) b.classList.add('disabled');
+        });
+
+        // Show Rationale Panel
+        rationalePanel.classList.add('show');
+      } else {
+        button.classList.add('incorrect');
+        playErrorBuzz();
+        setTimeout(() => {
+          button.classList.remove('incorrect');
+        }, 1200);
+      }
+    }
+
+    function advanceToNextStage() {
+      if (currentStageIndex < CASE_STAGES.length - 1) {
+        loadStage(currentStageIndex + 1);
+      } else {
+        alert("Case Complete! Arthur Vance achieved full recovery with zero documented renal or hepatic toxicity.");
+      }
+    }
+
+    function switchStage(num) {
+      loadStage(num - 1);
+    }
+
+    // Transport Controls
+    function togglePlay() {
+      if (bgVideo.paused) {
+        bgVideo.play();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+        decisionContainer.classList.remove('visible');
+        bgVideo.style.filter = "none";
+      } else {
+        bgVideo.pause();
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
+    }
+
+    function seekVideo(e) {
+      const track = document.getElementById('timelineTrack');
+      const rect = track.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = clickX / rect.width;
+      bgVideo.currentTime = pct * (bgVideo.duration || 10);
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    // Canvas Fallback Simulation if MP4 is not present
+    let canvasAnimationId = null;
+    function startCanvasSimulation(stage) {
+      bgVideo.style.display = 'none';
+      bgCanvas.style.display = 'block';
+      const ctx = bgCanvas.getContext('2d');
+
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+
+      const imgs = stage.stills.map(src => {
+        const img = new Image();
+        img.src = src;
+        return img;
+      });
+
+      let startTime = performance.now();
+      function drawFrame(now) {
+        let elapsed = (now - startTime) / 1000;
+        if (elapsed > 10.0) elapsed = 10.0;
+
+        timelineProgress.style.width = (elapsed / 10.0) * 100 + '%';
+        timeCounter.textContent = `${formatTime(elapsed)} / 00:10`;
+
+        let imgIndex = 0;
+        if (elapsed > 6.5) imgIndex = 2;
+        else if (elapsed > 3.2) imgIndex = 1;
+
+        const currentImg = imgs[imgIndex];
+        if (currentImg && currentImg.complete) {
+          ctx.drawImage(currentImg, 0, 0, bgCanvas.width, bgCanvas.height);
+        }
+
+        if (elapsed >= 9.8 && !decisionContainer.classList.contains('visible')) {
+          triggerDecisionGate();
+        }
+
+        if (elapsed < 10.0) {
+          canvasAnimationId = requestAnimationFrame(drawFrame);
+        }
+      }
+      canvasAnimationId = requestAnimationFrame(drawFrame);
+    }
+
+    // Web Audio System (ECG Pulse & Feedback)
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    function toggleAudio() {
+      initAudio();
+      isAudioActive = !isAudioActive;
+      const btn = document.getElementById('btnSound');
+      if (isAudioActive) {
+        btn.style.color = "var(--gold-accent)";
+        btn.style.borderColor = "var(--gold-accent)";
+        startEcgHeartbeat();
+      } else {
+        btn.style.color = "var(--text-main)";
+        btn.style.borderColor = "rgba(255,255,255,0.15)";
+        stopEcgHeartbeat();
+      }
+    }
+
+    function startEcgHeartbeat() {
+      if (ecgInterval) clearInterval(ecgInterval);
+      ecgInterval = setInterval(() => {
+        if (!isAudioActive || !audioContext) return;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+        gain.gain.setValueAtTime(0.04, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.09);
+      }, 882); // ~68 BPM
+    }
+
+    function stopEcgHeartbeat() {
+      if (ecgInterval) clearInterval(ecgInterval);
+      ecgInterval = null;
+    }
+
+    function playSuccessChime() {
+      initAudio();
+      if (!audioContext) return;
+      const notes = [523.25, 659.25, 783.99]; // C5 - E5 - G5
+      notes.forEach((freq, idx) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.06, audioContext.currentTime + idx * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + idx * 0.1 + 0.4);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(audioContext.currentTime + idx * 0.1);
+        osc.stop(audioContext.currentTime + idx * 0.1 + 0.45);
+      });
+    }
+
+    function playErrorBuzz() {
+      initAudio();
+      if (!audioContext) return;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, audioContext.currentTime);
+      gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start();
+      osc.stop(audioContext.currentTime + 0.26);
+    }
+
+    function playChime(freq, dur) {
+      initAudio();
+      if (!audioContext) return;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start();
+      osc.stop(audioContext.currentTime + dur + 0.05);
+    }
+
+    // Modal Source Manager
+    function openSourceModal() {
+      document.getElementById('sourceModal').classList.add('open');
+    }
+
+    function closeSourceModal() {
+      document.getElementById('sourceModal').classList.remove('open');
+    }
+
+    function applyVideoUrl() {
+      const url = document.getElementById('videoUrlInput').value.trim();
+      if (url) {
+        CASE_STAGES[currentStageIndex].videoSrc = url;
+        loadStage(currentStageIndex);
+        closeSourceModal();
+      }
+    }
+
+    function handleLocalVideoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const objUrl = URL.createObjectURL(file);
+        CASE_STAGES[currentStageIndex].videoSrc = objUrl;
+        document.getElementById('videoUrlInput').value = file.name;
+        loadStage(currentStageIndex);
+        closeSourceModal();
+      }
+    }
+
+    // Window Resize Handling for Canvas
+    window.addEventListener('resize', () => {
+      if (bgCanvas.style.display === 'block') {
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+      }
+    });
+
+    // Keyboard Shortcuts (Space to play/pause, 1/2/3 to answer)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (['Digit1', 'Digit2', 'Digit3', 'KeyA', 'KeyB', 'KeyC'].includes(e.code)) {
+        let index = -1;
+        if (e.code === 'Digit1' || e.code === 'KeyA') index = 0;
+        if (e.code === 'Digit2' || e.code === 'KeyB') index = 1;
+        if (e.code === 'Digit3' || e.code === 'KeyC') index = 2;
+        const btns = optionsGroup.querySelectorAll('.option-btn');
+        if (btns[index]) btns[index].click();
+      }
+    });
+
+    // Boot first stage
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStage(0);
+    });
+  </script>
+</body>
+</html>

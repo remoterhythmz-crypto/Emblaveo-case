@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081521">
+  <meta name="description" content="An interactive, fictionalized HCP case experience inspired by a published post-neurosurgical meningitis report.">
+  <title>The Case File · Interactive HCP Experience</title>
+  <link rel="icon" type="image/png" href="assets/emblaveo-logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="brand-lockup" aria-label="The Case File">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <div><strong>THE CASE FILE</strong><small>AN INTERACTIVE CLINICAL EXPERIENCE</small></div>
+      </div>
+      <div class="header-right">
+        <span class="audience-label">HCP EDUCATIONAL PROTOTYPE</span>
+        <span class="chapter-counter" id="chapterCounter">01 <span>/ 04</span></span>
+      </div>
+    </header>
+
+    <main id="mainContent">
+      <section class="intro" id="intro" aria-labelledby="introTitle">
+        <div class="intro-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> A DECISION AT EVERY TURN</p>
+          <h1 id="introTitle">A life in<br><em>your hands.</em></h1>
+          <p class="intro-lede">Step into the attending doctor’s perspective. Follow Arthur Vance’s postoperative course, inspect his record, and make five clinical decisions as the case unfolds.</p>
+          <p class="intro-caveat">Arthur and his details are fictionalized for this simulation. The published clinical case is cited at the end.</p>
+          <button class="primary-button" id="startButton" type="button">Enter the case <span aria-hidden="true">↗</span></button>
+          <div class="intro-meta"><span>4 VIDEO CHAPTERS</span><i aria-hidden="true"></i><span>5 DECISIONS</span><i aria-hidden="true"></i><span>APPROX. 4 MIN</span></div>
+        </div>
+        <div class="intro-visual" aria-hidden="true">
+          <img src="assets/arthur-vance-profile.png" alt="">
+          <div class="intro-visual-grain"></div>
+          <div class="intro-visual-caption"><span>CASE 001</span><strong>POST-NEUROSURGICAL<br>MENINGITIS</strong></div>
+        </div>
+      </section>
+
+      <section class="experience" id="experience" aria-label="Interactive case" hidden>
+        <div class="section-line">
+          <div><p class="eyebrow" id="sceneKicker">CHAPTER 01 · THE FIRST WATCH</p><h1 id="sceneTitle">The first watch</h1></div>
+          <p class="scene-description" id="sceneDescription">The first postoperative assessment.</p>
+        </div>
+
+        <div class="cinema-frame" id="cinemaFrame">
+          <video id="sceneVideo" playsinline preload="metadata" aria-label="Case scene video">
+            <source src="assets/video1.mp4" type="video/mp4">
+            Your browser does not support video playback.
+          </video>
+          <div class="cinema-shade" aria-hidden="true"></div>
+          <div class="scene-stamp" id="sceneStamp"><span class="stamp-dot"></span> SCENE 01 <span class="stamp-divider"></span> ARTHUR VANCE</div>
+          <div class="video-caption" id="videoCaption" aria-live="polite" hidden></div>
+          <p class="video-source-note" id="videoSourceNote" hidden>Wong-So J, et al. Antimicrob Agents Chemother. 2025;69:e00172-25. doi:10.1128/aac.00172-25.</p>
+
+          <div class="paper-interaction" id="paperInteraction" hidden>
+            <button id="paperHotspot" class="paper-hotspot" type="button" aria-label="Open Arthur Vance's patient profile from the clipboard page">
+              <span class="paper-hotspot-outline" aria-hidden="true"></span>
+              <span class="paper-hotspot-label"><span class="hotspot-icon" aria-hidden="true">＋</span> OPEN PATIENT FILE</span>
+            </button>
+            <div class="hotspot-instruction"><span class="instruction-pulse" aria-hidden="true"></span> Select the page to inspect Arthur’s record</div>
+          </div>
+
+          <div class="video-fallback" id="videoFallback" hidden>
+            <strong>The scene could not be loaded.</strong><span>Check that the MP4 files remain in the assets folder.</span>
+            <button type="button" id="retryVideo">Try again</button>
+          </div>
+        </div>
+
+        <div class="transport">
+          <div class="transport-left">
+            <button id="playPauseButton" class="icon-button" type="button" aria-label="Pause video">Ⅱ</button>
+            <button id="muteButton" class="icon-button" type="button" aria-label="Mute video">◖))</button>
+            <button id="captionButton" class="text-button" type="button" aria-pressed="false">CC OFF</button>
+            <span id="timeLabel" class="time-label">00:00 / 00:10</span>
+          </div>
+          <div class="transport-right"><span class="transport-hint">THE STORY PAUSES FOR YOUR DECISIONS</span><button id="replayButton" class="text-button" type="button">↺ REPLAY SCENE</button></div>
+          <div class="progress-track" role="progressbar" aria-label="Video progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><span id="progressFill"></span></div>
+        </div>
+
+        <div class="post-video-actions" id="postVideoActions" hidden>
+          <div><span class="small-label">PATIENT RECORD AVAILABLE</span><p>Arthur’s chart is ready for review.</p></div>
+          <div class="post-action-buttons"><button id="openProfileBelow" class="secondary-button" type="button">View patient profile</button><button id="continueAfterProfile" class="primary-button compact" type="button" hidden>Continue to decision <span aria-hidden="true">→</span></button></div>
+        </div>
+
+        <section class="decision-card" id="decisionCard" aria-labelledby="decisionTitle" hidden>
+          <div class="decision-top"><span class="decision-label" id="decisionNumber">DECISION 01 / 05</span><span class="decision-type">SELECT ONE ANSWER</span></div>
+          <h2 id="decisionTitle">Clinical question</h2>
+          <div class="answer-list" id="answerList" role="group" aria-label="Answer choices"></div>
+          <div class="decision-feedback" id="decisionFeedback" role="status" aria-live="polite" hidden></div>
+          <button id="continueButton" class="primary-button compact" type="button" hidden>Continue the story <span aria-hidden="true">→</span></button>
+        </section>
+      </section>
+
+      <section class="completion" id="completion" aria-labelledby="completionTitle" hidden>
+        <div class="completion-inner">
+          <p class="eyebrow">CASE COMPLETED · 04 CHAPTERS · 05 DECISIONS</p>
+          <h1 id="completionTitle">The case ends.<br><em>The questions stay.</em></h1>
+          <p>You followed an illustrated, fictionalized case inspired by a published report of post-neurosurgical <i>Stenotrophomonas maltophilia</i> meningitis. One reported outcome can inform a discussion; it does not establish efficacy for every patient.</p>
+          <div class="completion-brand"><img src="assets/emblaveo-logo.png" alt="EMBLAVEO, aztreonam and avibactam for injection (2 g)"><span>BRAND CONTEXT</span></div>
+          <p class="brand-context">The published patient received <strong>aztreonam plus ceftazidime-avibactam</strong>. Fixed-dose EMBLAVEO was not administered in that case. Verify local prescribing information and approved materials before any external use.</p>
+          <div class="completion-actions"><button id="restartButton" class="primary-button compact" type="button">Play again <span aria-hidden="true">↺</span></button><a class="secondary-button" href="https://doi.org/10.1128/aac.00172-25" target="_blank" rel="noopener noreferrer">Read the case report ↗</a></div>
+          <p class="source-reference"><strong>Reference</strong> · Wong-So, J., Magréault, S., Carbonnelle, É., Jullien, V., Desgrouas, M., Boulain, T. and Barbier, F. (2025). “Aztreonam plus ceftazidime-avibactam for post-neurosurgical meningitis due to <i>Stenotrophomonas maltophilia</i>.” <i>Antimicrobial Agents and Chemotherapy</i>, 69(8), e00172-25. <a href="https://doi.org/10.1128/aac.00172-25" target="_blank" rel="noopener noreferrer">doi:10.1128/aac.00172-25</a>.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>SIMULATED CASE · FOR HCP EDUCATION</span><span>THE CASE FILE <span aria-hidden="true">✦</span> 2026</span></footer>
+  </div>
+
+  <dialog class="profile-dialog" id="profileDialog" aria-labelledby="profileTitle" aria-describedby="profileSummary">
+    <div class="profile-panel">
+      <div class="profile-heading"><div><p class="eyebrow">HOSPITAL RECORD · SIMULATED PATIENT</p><h2 id="profileTitle">Arthur Vance</h2><span class="profile-subtitle">PATIENT PROFILE · AGE 45</span></div><button id="closeProfile" class="dialog-close" type="button" aria-label="Close patient profile">×</button></div>
+      <div class="profile-grid">
+        <div class="profile-portrait"><img src="assets/arthur-vance-profile.png" alt="Formal portrait illustration of Arthur Vance in a dark suit"><div class="portrait-footer"><span>AV</span><span>CASE ID · AV-001</span></div></div>
+        <div class="profile-data">
+          <p class="profile-summary" id="profileSummary">A 45-year-old post-neurosurgical ICU patient with acute neurological decline, high fever, and altered mental status.</p>
+          <dl class="profile-facts"><div><dt>Age</dt><dd>45 years</dd></div><div><dt>Clinical setting</dt><dd>Post-neurosurgical ICU</dd></div><div><dt>Current concern</dt><dd>Meningitis with acute neurological decline</dd></div><div><dt>CSF culture</dt><dd><i>Stenotrophomonas maltophilia</i> isolated</dd></div></dl>
+          <div class="record-block"><span class="small-label">ANTIBIOTIC EXPOSURE · SIMULATION DETAIL</span><p>Prolonged meropenem, cefepime, and vancomycin during the postoperative ICU stay. This exposure is a risk context for resistant opportunistic infection; it does not by itself prove causation.</p></div>
+          <div class="record-block"><span class="small-label">SUSCEPTIBILITY &amp; MECHANISM</span><p>Intrinsic resistance to many standard β-lactams and carbapenems is associated with L1 metallo-β-lactamase and L2 serine β-lactamase. In this simulated record, aztreonam-avibactam MIC: <strong>4/4 µg/mL</strong>.</p></div>
+          <p class="profile-source-note">Arthur’s name, age, portrait, and some history details are fictional. The linked paper reports a different 59-year-old patient and a different prior-antibiotic history.</p>
+        </div>
+      </div>
+      <div class="profile-actions"><button id="closeProfileContinue" class="primary-button compact" type="button">Close record &amp; continue <span aria-hidden="true">→</span></button></div>
+    </div>
+  </dialog>
+</body>
+</html>
